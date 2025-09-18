@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "producer",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -11,6 +11,6 @@
   },
   "dependencies": {
     "db": "workspace:*",
-    "express": "^5.1.0"
+    "redis": "workspace:*"
   }
 }

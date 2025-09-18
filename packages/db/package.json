@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "db",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -10,7 +10,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "db": "workspace:*",
-    "express": "^5.1.0"
+    "@prisma/client": "^6.16.2"
   }
 }
