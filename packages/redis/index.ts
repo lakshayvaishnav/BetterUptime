@@ -48,3 +48,24 @@ export async function XBulkAdd(websites: WebsiteType[]) {
         console.error("Failed to bulk add websites to the stream : ", error);
     }
 }
+
+// read for the consumer group
+export async function XReadConsumerGroup(consumerId: string, groupId: string) {
+    try {
+        const res = await client.xReadGroup(
+            groupId, consumerId, {
+            key: "betteruptime:websites",
+            id: ">"
+        }, {
+            COUNT: 10
+        }
+        )
+
+        console.log("✅ readed from consumer group : ", res);
+
+    } catch (error) {
+        console.error("consumer group error : ", error);
+    }
+}
+
+// send the acknowledgement for the prcessed fields
