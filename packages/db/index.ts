@@ -1,3 +1,5 @@
+import { Location } from "./generated/prisma";
+import { Status } from "./generated/prisma";
 import { PrismaClient } from "./generated/prisma";
 import { faker } from "@faker-js/faker";
 
@@ -20,6 +22,16 @@ async function main() {
     ];
     const randomUrl = faker.helpers.arrayElement(urls);
 
+    const randomLocation = faker.helpers.arrayElement([
+        Location.USA,
+        Location.INDIA
+    ])
+
+    const randomStatus = faker.helpers.arrayElement([
+        Status.Down,
+        Status.Up
+    ])
+
     // create user with monitor + check result
     const create_user = await prisma.user.create({
         data: {
@@ -30,8 +42,9 @@ async function main() {
                     url: randomUrl,
                     results: {
                         create: {
-                            status: faker.datatype.boolean(),
+                            status: randomStatus,
                             responseTimeMs: faker.number.int({ min: 50, max: 1000 }),
+                            Location: randomLocation
                         },
                     },
                 },
