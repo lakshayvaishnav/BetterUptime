@@ -39,5 +39,5 @@ model CheckResult {
   monitorId      String
   status         Boolean // up = true , down = false
   responseTimeMs Int? // response time in ms
-  chcekedAt      DateTime @default(now())
+  checkedAt      DateTime @default(now())
 }

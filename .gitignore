@@ -1,6 +1,6 @@
 # dependencies (bun install)
 node_modules
-/postgres_data
+docker/postgres_data
 # output
 out
 dist
