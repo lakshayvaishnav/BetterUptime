@@ -37,7 +37,18 @@ model CheckResult {
   id             String   @id @default(uuid())
   monitor        Monitor  @relation(fields: [monitorId], references: [id])
   monitorId      String
-  status         Boolean // up = true , down = false
+  status         Status 
+  Location       Location
   responseTimeMs Int? // response time in ms
   checkedAt      DateTime @default(now())
+}
+
+enum Status {
+  Up
+  Down
+}
+
+enum Location {
+  USA
+  INDIA
 }
