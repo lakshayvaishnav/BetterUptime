@@ -62,10 +62,31 @@ export async function XReadConsumerGroup(consumerId: string, groupId: string) {
         )
 
         console.log("✅ readed from consumer group : ", res);
-
+        return res;
     } catch (error) {
         console.error("consumer group error : ", error);
     }
 }
 
 // send the acknowledgement for the prcessed fields
+export async function XAck(groupId: string, eventId: string) {
+    try {
+        const res = await client.xAck(streamKey, groupId, eventId)
+        console.log("✅ Acknowledged ${res} message in group ${groupId}")
+        return res;
+    } catch (error) {
+        console.error("ack error : ", error);
+    }
+}
+
+export async function XBulkAck(groupId: string, eventIds: string[]) {
+    try {
+        eventIds.map((eventid) => {
+            let res = XAck(groupId, eventid)
+            console.log("bulk response : ", res);
+        }
+        );
+    } catch (error) {
+        console.error("ack error : ", error);
+    }
+}
