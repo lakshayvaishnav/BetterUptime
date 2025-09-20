@@ -4,17 +4,24 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest",
-    "prisma": "^6.16.2"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",
-    "@prisma/client": "^6.16.2"
+    "@prisma/client": "^6.16.2",
+    "prisma": "^6.16.2"
   },
   "scripts": {
-    "seed": "bun run ./index.ts"
+    "seed": "bun run ./seed.ts"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "exports": {
+    "./client": "./index.ts"
   }
 }

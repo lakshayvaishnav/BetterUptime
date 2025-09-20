@@ -12,5 +12,8 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "producer": "bun run apps/producer/index.ts"
+  }
 }
