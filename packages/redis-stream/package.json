@@ -1,8 +1,11 @@
 {
-  "name": "redis",
+  "name": "redis-stream",
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "exports": {
+    "./client": "./index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -11,6 +14,6 @@
   },
   "dependencies": {
     "redis": "^5.8.2",
-    "utils":"workspace:*"
+    "utils": "workspace:*"
   }
 }

@@ -1,14 +1,18 @@
-import { createClient } from "redis";
-import { prismaclient} from "db/client"
-
-const redis = createClient();
-
+import { prismaclient } from "db/client"
+import { XBulkAdd } from "redis-stream/client";
 
 async function producer() {
 
-    const result = await prismaclient.user.findMany({});
+    const websiteUrl = await prismaclient.monitor.findMany({
+        select: {
+            id: true,
+            url: true
+        }
+    });
 
-    console.log("result : ", result);
+    console.log("website url : ", websiteUrl)
+    await XBulkAdd(websiteUrl);
+    console.log("sucessfully added to the stream ✅");
 }
 
 producer();

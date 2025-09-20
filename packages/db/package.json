@@ -17,10 +17,6 @@
   "scripts": {
     "seed": "bun run ./seed.ts"
   },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "exports": {
     "./client": "./index.ts"
   }

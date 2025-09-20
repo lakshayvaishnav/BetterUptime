@@ -1,7 +1,7 @@
 import { createClient } from "redis"
-import type { WebsiteType } from "utils";
+import type { WebsiteType } from "utils/client";
 
-const client = createClient();
+export const client = await createClient();
 
 client.on("error", (err) => console.error("Redis Cient Error", err))
 

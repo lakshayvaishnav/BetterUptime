@@ -11,6 +11,6 @@
   },
   "dependencies": {
     "db": "workspace:*",
-    "redis": "workspace:*"
+    "redis-stream": "workspace:*"
   }
 }
