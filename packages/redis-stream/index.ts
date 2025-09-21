@@ -72,7 +72,7 @@ export async function XReadConsumerGroup(consumerId: string, groupId: string) {
 export async function XAck(groupId: string, eventId: string) {
     try {
         const res = await client.xAck(streamKey, groupId, eventId)
-        console.log("✅ Acknowledged ${res} message in group ${groupId}")
+        console.log(`✅ Acknowledged ${res} message in group ${groupId}`)
         return res;
     } catch (error) {
         console.error("ack error : ", error);
@@ -80,10 +80,12 @@ export async function XAck(groupId: string, eventId: string) {
 }
 
 export async function XBulkAck(groupId: string, eventIds: string[]) {
+
     try {
-        eventIds.map((eventid) => {
-            let res = XAck(groupId, eventid)
+        eventIds.map(async (eventid) => {
+            let res = await XAck(groupId, eventid)
             console.log("bulk response : ", res);
+            return res;
         }
         );
     } catch (error) {

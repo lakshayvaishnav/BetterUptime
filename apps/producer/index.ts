@@ -3,6 +3,7 @@ import { XBulkAdd } from "redis-stream/client";
 
 async function producer() {
 
+    // TODO : add limit of url and add a while
     const websiteUrl = await prismaclient.monitor.findMany({
         select: {
             id: true,

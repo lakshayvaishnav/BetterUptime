@@ -15,7 +15,7 @@ async function main() {
         "https://youtube.com",
         "https://google.com",
         "https://github.com",
-        "https://twitter.com",
+        "https://twitterkabharosaaasdfadsfasfkjdflksjdflajsdfajflkajsdhlkhjlasdf.com",
         "https://openai.com",
     ];
     const randomUrl = faker.helpers.arrayElement(urls);

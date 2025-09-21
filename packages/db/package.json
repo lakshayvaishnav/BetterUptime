@@ -15,7 +15,8 @@
     "prisma": "^6.16.2"
   },
   "scripts": {
-    "seed": "bun run ./seed.ts"
+    "seed": "bun run ./seed.ts",
+    "clean": "bun run ./cleanDb.ts"
   },
   "exports": {
     "./client": "./index.ts"

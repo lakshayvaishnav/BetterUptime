@@ -14,6 +14,7 @@
     "packages/*"
   ],
   "scripts": {
-    "producer": "bun run apps/producer/index.ts"
+    "producer": "bun run apps/producer/index.ts",
+    "worker": "bun run apps/worker/index.ts"
   }
 }
