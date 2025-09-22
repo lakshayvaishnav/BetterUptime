@@ -19,7 +19,14 @@ async function workerLoop() {
             { COUNT: 5, BLOCK: 5000 } // block for 5s if no messages.
         )
 
-        console.log("response from xreadgroup : ", JSON.stringify(res, null, 2));
+        console.debug("⏳ consuming from stream : ", JSON.stringify(res, null, 2));
+
+        // if no response check for pending entries list
+        if (!res) {
+            const pending = await client.xPending(STREAM_KEY, GROUP);
+            console.debug("🔫 number of pending entries : ", pending.pending);
+
+        }
 
         if (!res) continue;
 
@@ -104,7 +111,73 @@ async function workerLoop() {
     }
 }
 
-workerLoop();
+
+
+// workerLoop();
+const RECLAIMER = "pel-reclaimer"
+
+
+
+async function reclaimLoop() {
+    console.log("➡️ running reclaim loop.")
+    while (true) {
+        try {
+            // check pending
+            const pending = await client.xPending(STREAM_KEY, GROUP);
+
+
+            if (pending.pending > 0) {
+                // get some details
+                const details = await client.xPendingRange(
+                    STREAM_KEY,
+                    GROUP,
+                    "-", "+",
+                    10
+                );
+
+                for (const entry of details) {
+
+                    //  @ts-ignore
+                    const { id, consumer, millisecondsSinceLastDelivery, _deliveriesCounter } = entry;
+
+                    // if message stuck > 30s, reclaim it.
+                    if (millisecondsSinceLastDelivery > 30000) {
+                        const claimed = await client.xClaim(
+                            STREAM_KEY,
+                            GROUP,
+                            RECLAIMER,
+                            30000,
+                            [id]
+                        );
+
+                        console.debug("🔫 claimed : ", JSON.stringify(claimed, null, 2));
+                        // process the claimed message
+
+                        // collect results and bulk uppload
+                        const pelResults: {
+                            monitorId: string,
+                            eventId: string,
+                            url: string,
+                            status: Status,
+                            responseTime: number,
+                            checkedAt: Date,
+                            Location: Location
+                        }[] = [];
+                        try {
+                            
+                        } catch (error) {
+
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("error in recalim loop : ", error);
+        }
+    }
+}
+
+reclaimLoop();
 
 async function checkUptime(url: string) {
     let status: Status;
