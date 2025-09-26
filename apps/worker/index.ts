@@ -16,7 +16,7 @@ async function workerLoop() {
             GROUP,
             CONSUMER,
             { key: STREAM_KEY, id: ">" },
-            { COUNT: 5, BLOCK: 5000 } // block for 5s if no messages.
+            { COUNT: 10, BLOCK: 5000 } // block for 5s if no messages.
         )
 
         console.debug("⏳ consuming from stream : ", JSON.stringify(res, null, 2));
@@ -100,13 +100,9 @@ async function workerLoop() {
             }
 
         }
-
     }
 }
 
-
-
-// workerLoop();
 const RECLAIMER = "pel-reclaimer"
 
 
@@ -203,9 +199,27 @@ async function reclaimLoop() {
                     // now push it to database and acknowledge the message.
                     try {
                         console.debug("🚀 bulk upload to prisma");
+                        await prismaclient.checkResult.createMany({
+                            data: pelResults.map((r => ({
+                                monitorId: r.monitorId,
+                                status: r.status,
+                                Location: r.Location,
+                                responseTimeMs: r.responseTime,
+                                checkedAt: r.checkedAt
+                            })))
+                        });
+                        console.debug("✅ bulk upload successfull");
 
                     } catch (error) {
                         console.error("failed to bulk upload", error)
+                    }
+
+                    try {
+                        const eventIds = pelResults.map(r => r.eventId);
+                        const ackRes = await XBulkAck(GROUP, eventIds);
+                        console.log(`✅ Acknowledged ${ackRes} messges`);
+                    } catch (error) {
+                        console.error("bulk acknowledge error : ", error);
                     }
 
                 }
@@ -216,6 +230,7 @@ async function reclaimLoop() {
     }
 }
 
+setInterval(workerLoop, 3 * 60 * 1000);
 reclaimLoop();
 
 async function checkUptime(url: string) {
