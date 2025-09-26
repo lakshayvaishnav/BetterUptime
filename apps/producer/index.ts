@@ -11,9 +11,14 @@ async function producer() {
         }
     });
 
+    if (websiteUrl.length === 0) return;
+
     console.log("website url : ", websiteUrl)
     await XBulkAdd(websiteUrl);
     console.log("sucessfully added to the stream ✅");
 }
 
-producer();
+producer().catch(console.error);
+setInterval(() => {
+    producer().catch(console.error)
+}, 3 * 60 * 1000);

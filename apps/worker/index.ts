@@ -230,8 +230,11 @@ async function reclaimLoop() {
     }
 }
 
-setInterval(workerLoop, 3 * 60 * 1000);
-reclaimLoop();
+workerLoop();
+
+// reclaim loop runs in every 10 seconds 
+// shouldn't be tight on cpu usage.
+setInterval(reclaimLoop, 10 * 1000);
 
 async function checkUptime(url: string) {
     let status: Status;
