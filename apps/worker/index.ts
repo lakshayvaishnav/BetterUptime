@@ -21,13 +21,6 @@ async function workerLoop() {
 
         console.debug("⏳ consuming from stream : ", JSON.stringify(res, null, 2));
 
-        // if no response check for pending entries list
-        if (!res) {
-            const pending = await client.xPending(STREAM_KEY, GROUP);
-            console.debug("🔫 number of pending entries : ", pending.pending);
-
-        }
-
         if (!res) continue;
 
         // collect results
@@ -125,6 +118,7 @@ async function reclaimLoop() {
             // check pending
             const pending = await client.xPending(STREAM_KEY, GROUP);
 
+            console.log("number of pending entries : ", pending.pending);
 
             if (pending.pending > 0) {
                 // get some details
@@ -134,6 +128,18 @@ async function reclaimLoop() {
                     "-", "+",
                     10
                 );
+
+                // process the claimed message
+                // collect results and bulk upload
+                const pelResults: {
+                    monitorId: string,
+                    eventId: string,
+                    url: string,
+                    status: Status,
+                    responseTime: number,
+                    checkedAt: Date,
+                    Location: Location
+                }[] = [];
 
                 for (const entry of details) {
 
@@ -151,24 +157,57 @@ async function reclaimLoop() {
                         );
 
                         console.debug("🔫 claimed : ", JSON.stringify(claimed, null, 2));
-                        // process the claimed message
 
-                        // collect results and bulk uppload
-                        const pelResults: {
-                            monitorId: string,
-                            eventId: string,
-                            url: string,
-                            status: Status,
-                            responseTime: number,
-                            checkedAt: Date,
-                            Location: Location
-                        }[] = [];
+
                         try {
-                            
-                        } catch (error) {
 
+                            // write the processing logic 
+                            for (const claimedEntry of claimed) {
+                                if (!claimedEntry) continue;
+
+                                const { id, message: fields } = claimedEntry;
+
+                                if (!fields.url) {
+                                    throw Error("url does not exist");
+                                }
+
+                                if (!fields.id) {
+                                    throw Error("id does not exist");
+                                }
+
+                                const url = fields.url;
+                                const monitorId = fields.id;
+                                const start = Date.now();
+                                const status = await checkUptime(url);
+                                const end = Date.now();
+
+                                const responseTime = end - start;
+
+                                pelResults.push({
+                                    monitorId: monitorId,
+                                    eventId: id,
+                                    checkedAt: new Date(),
+                                    Location: Location.INDIA,
+                                    responseTime: responseTime,
+                                    status: status,
+                                    url: url
+                                })
+                            }
+                        } catch (error) {
+                            console.error("failed to push the message to pel results : ", error);
                         }
                     }
+                }
+                if (pelResults.length > 0) {
+                    console.debug("pel results : ", pelResults);
+                    // now push it to database and acknowledge the message.
+                    try {
+                        console.debug("🚀 bulk upload to prisma");
+
+                    } catch (error) {
+                        console.error("failed to bulk upload", error)
+                    }
+
                 }
             }
         } catch (error) {
