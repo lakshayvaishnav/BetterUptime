@@ -62,6 +62,7 @@ class AuthController {
                 message: "Internal server error",
                 error: process.env.NODE_ENV === "development" ? error : undefined
             });
+            console.debug("error : ", error);
         }
     }
     async login(req: Request, res: Response): Promise<void> {

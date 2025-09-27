@@ -10,3 +10,4 @@ router.post('/logout', authController.logout);
 router.get('/profile', authenticate, authController.getProfile);
 
 export default router;
+

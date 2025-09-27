@@ -59,7 +59,7 @@ Simpler Usage: No need to remember to instantiate with new
 Consistent State: All controllers work with the same user data
 Memory Efficient: Only one instance in memory
 */
-
+``
 export default new UserModel();
 
 

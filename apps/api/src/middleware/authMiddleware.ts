@@ -41,6 +41,7 @@ export const authenticate = async (
             });
             return;
         }
+        console.debug("✅ user : ", user);
         req.user = user;
         next();
     } catch (error) {
@@ -48,5 +49,6 @@ export const authenticate = async (
             success: false,
             message: "Invalid token"
         })
+        console.debug("errror : ", error);
     }
 }
