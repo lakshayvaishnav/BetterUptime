@@ -44,7 +44,7 @@ sameSite: 'strict'
 */
 
 export const getCookieOptions = () => {
-    const expire = parseInt(process.env.COOKIE_EXPOIRE || '2');
+    const expire = parseInt(process.env.COOKIE_EXPIRE || '2');
 
     return {
         expires: new Date(Date.now() + expire * 24 * 60 * 60 * 1000),
