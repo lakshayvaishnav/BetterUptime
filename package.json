@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "producer": "bun run apps/producer/index.ts",
-    "worker": "bun run apps/worker/index.ts"
+    "worker": "bun run apps/worker/index.ts",
+    "api":"bun run apps/api/index.ts"
   }
 }

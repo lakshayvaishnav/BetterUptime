@@ -15,12 +15,13 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?
-  monitors  Monitor[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now())
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String?
+  hashedPassword String
+  monitors       Monitor[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now())
 }
 
 model Monitor {
@@ -37,7 +38,7 @@ model CheckResult {
   id             String   @id @default(uuid())
   monitor        Monitor  @relation(fields: [monitorId], references: [id])
   monitorId      String
-  status         Status 
+  status         Status
   Location       Location
   responseTimeMs Int? // response time in ms
   checkedAt      DateTime @default(now())
