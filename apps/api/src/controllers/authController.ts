@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import z, { success } from "zod";
+import z, { date, success } from "zod";
 import userModel from "../models/userModel";
 import { generateToken, getCookieOptions } from "../utils/jwt";
 import type { LoginRequest, SignupRequest, AuthenticatedRequest } from "../types";
@@ -113,12 +113,57 @@ class AuthController {
 
         } catch (error) {
             res.status(500).json({
-                success:false,
-                message : "Internal server error",
-                error : process.env.NODE_ENV === "development" ? error : undefined
+                success: false,
+                message: "Internal server error",
+                error: process.env.NODE_ENV === "development" ? error : undefined
             })
         }
     }
+    async logout(req: Request, res: Response): Promise<void> {
+        try {
+            res.cookie('token', '', {
+                expires: new Date(0),
+                httpOnly: true
+            });
 
+            res.json({
+                success: true,
+                message: "Logout successfull"
+            })
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: "failed to logout"
+            })
+        }
+    }
+    async getProfile(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const user = req.user;
 
+            if (!user) {
+                res.status(401).json({
+                    success: false,
+                    message: "user not authenticated"
+                })
+                return;
+            }
+            res.json({
+                success: true,
+                data: {
+                    user: {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        createdAt: user.createdAt
+                    }
+                }
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: "Internal server error"
+            })
+        }
+    }
 }
