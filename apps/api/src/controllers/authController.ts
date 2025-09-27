@@ -66,11 +66,59 @@ class AuthController {
     }
     async login(req: Request, res: Response): Promise<void> {
         try {
+            const { email, password }: LoginRequest = req.body;
+
+            // find user by email
+            const user = await userModel.getUserByEmail(email);
+
+            if (!user) {
+                res.status(401).json({
+                    success: false,
+                    message: "Invalid credientials"
+                })
+                return;
+            }
+
+            // validate passowrd
+            const isPassowrdValid = await userModel.validatePassword(password, user.hashedPassword);
+            if (!isPassowrdValid) {
+                res.status(401).json({
+                    success: false,
+                    message: "Invalid credentails"
+                })
+                return;
+            }
+
+            // generate jwt token
+            const token = generateToken({
+                id: user.id,
+                email: user.email
+            })
+
+            // set cookie
+            res.cookie('token', token, getCookieOptions())
+
+            res.json({
+                success: true,
+                message: 'Login successfull',
+                data: {
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        name: user.name
+                    },
+                    token
+                }
+            })
 
         } catch (error) {
-
+            res.status(500).json({
+                success:false,
+                message : "Internal server error",
+                error : process.env.NODE_ENV === "development" ? error : undefined
+            })
         }
     }
 
-    async
+
 }
