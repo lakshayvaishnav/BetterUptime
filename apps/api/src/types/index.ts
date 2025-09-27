@@ -1,16 +1,16 @@
 
 import type { Request } from "express";
+import type { User } from "db/client";
 
 export interface LoginRequest {
     email: string,
     password: string,
 }
 
-export interface User {
-    id: string,
-    name: string,
-    email: string,
-
+export interface userType {
+    id : string,
+    email : string,
+    name : string,
 }
 
 export interface SignupRequest {
