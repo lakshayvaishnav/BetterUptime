@@ -15,7 +15,7 @@ export const authenticate = async (
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith('Bearer ')) {
             token = authHeader.substring(7);
-            console.debug("✅ token found in auth header", token)
+            console.debug("✅ token found in auth header: ", token)
         }
 
         if (!token && req.cookies?.token) {
@@ -31,7 +31,7 @@ export const authenticate = async (
             return;
         }
 
-        const decoded = verifyToken(token);
+        const decoded = await verifyToken(token);
         const user = await userModel.getUserById(decoded.id);
 
         if (!user) {
@@ -41,7 +41,6 @@ export const authenticate = async (
             });
             return;
         }
-        console.debug("✅ user decoded : ", user);
         req.user = user;
         next();
     } catch (error) {

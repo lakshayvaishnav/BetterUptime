@@ -1,4 +1,5 @@
-import { prismaclient, type User } from "db/client";
+import { prismaclient } from "db/client";
+import type { User } from "../types";
 import bcrypt from "bcryptjs";
 import type { SignupRequest } from "../types";
 
@@ -9,14 +10,19 @@ class UserModel {
                 email: email
             }
         })
+        
         console.debug("✅ user by email : ", res);
-        return res;
+        return user;
     }
 
     async getUserById(id: string): Promise<User | null> {
         const res = await prismaclient.user.findFirst({
             where: {
                 id: id
+            }, select: {
+                id: true,
+                email: true,
+                name: true,
             }
         })
         console.debug("✅ user by id : ", res);

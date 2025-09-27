@@ -13,8 +13,8 @@ export const generateToken = (payload: JWTPayload): string => {
     return res;
 }
 
-export const verifyToken = (token: string): JWTPayload => {
-    const res = jwt.verify(token, JWT_SECRET) as JWTPayload;
+export const verifyToken = async (token: string): Promise<JWTPayload> => {
+    const res = await jwt.verify(token, JWT_SECRET) as JWTPayload;
     console.debug("✅ token verified : ", res);
     return res;
 }
