@@ -5,6 +5,7 @@ import userController from "../controllers/userController";
 const router = Router();
 
 // to check all the monitors of the user. # protected
-router.get("/api/user/dashboard",authenticate,userController.getUserMonitor);
+router.get("/dashboard",authenticate,userController.getUserMonitor);
 
 
+export default router;

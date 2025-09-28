@@ -5,13 +5,14 @@ import dotenv from "dotenv"
 dotenv.config();
 
 import authRoutes from "./src/routes/authRoutes";
+import userRoutes from "./src/routes/userRoutes"
 
 const app = express();
 
 app.use(express.json())
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/user", userRoutes);
 
 app.get("/", (req, res) => {
     res.json("hello bro how u doing")

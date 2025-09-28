@@ -8,9 +8,14 @@ export interface LoginRequest {
 }
 
 export interface userType {
-    id : string,
-    email : string,
-    name : string,
+    id: string,
+    email: string,
+    name: string,
+}
+
+export interface CreateMonitor {
+    userId: string,
+    url: string,
 }
 
 export interface SignupRequest {
