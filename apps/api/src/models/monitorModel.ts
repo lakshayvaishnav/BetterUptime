@@ -107,6 +107,63 @@ class MonitorModel {
         }
     }
 
+    async getMonitorById(monitorId: string, userId: string): Promise<Monitor | null> {
+        try {
+            const res = await prismaclient.monitor.findFirst({
+                where: {
+                    id: monitorId,
+                    userId: userId
+                },
+                include: {
+                    results: {
+                        orderBy: {
+                            checkedAt: "desc"
+                        },
+                        take: 50 // last 50 results
+                    },
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
+                    }
+                }
+            })
+            console.debug("✅ monitor fetched by id : ", res);
+            return res;
+
+        } catch (error) {
+            console.error("Error fetching monitor by id : ", error);
+            throw new Error("failed to fetch monitor");
+        }
+    }
+
+    async deleteAllUserMonitors(userId: string): Promise<number> {
+        try {
+            await prismaclient.checkResult.deleteMany({
+                where: {
+                    monitor: {
+                        userId: userId
+                    }
+                }
+            });
+
+            const result = await prismaclient.monitor.deleteMany({
+                where: {
+                    userId: userId
+                }
+            })
+
+            console.debug("✅ deleted all monitors for user : ", result.count);
+            return result.count;
+        } catch (error) {
+            console.error("Error deleting all user monitors", error);
+            throw new Error("Failed to delete user monitors");
+        }
+    }
+
+
 }
 
 export default new MonitorModel();
@@ -115,5 +172,8 @@ export default new MonitorModel();
 // createUserMonitor
 // deleteUserMonitor
 // getmonitorbyid
-// updateusermonitor
 // deleteallusermonitors
+
+// TODO :
+// add the check for valid url
+// updateusermonitor
