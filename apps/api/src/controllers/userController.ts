@@ -55,7 +55,7 @@ class UserController {
             }
 
             // TODO : complete the code to get monitors
-            const monitor = await monitorModel.getUserMonitor(id);
+            const monitor = await monitorModel.getUserMonitors(id);
             if (!monitor) {
                 res.status(404).json({
                     success: false,
