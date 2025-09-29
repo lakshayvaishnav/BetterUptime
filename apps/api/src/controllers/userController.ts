@@ -1,4 +1,3 @@
-import { success } from "zod";
 import userModel from "../models/userModel";
 import type { AuthenticatedRequest } from "../types";
 import type { Response } from "express";

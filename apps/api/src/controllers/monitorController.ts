@@ -1,4 +1,3 @@
-import { success } from "zod";
 import monitorModel from "../models/monitorModel";
 import type { AuthenticatedRequest, CreateMonitor } from "../types";
 import type { Response } from "express";
@@ -110,7 +109,7 @@ class MonitorController {
         } catch (error) {
             res.status(500).json({
                 success: false,
-                message : "internal server error"
+                message: "internal server error"
             })
             console.debug("erro in delete all user monitor : ", error);
         }
@@ -135,15 +134,52 @@ class MonitorController {
                 data: {
                     result
                 },
-                message : "Fetched all monitors"
+                message: "Fetched all monitors"
             })
 
         } catch (error) {
             res.status(500).json({
                 success: false,
-                message : "internal server error"
+                message: "internal server error"
             })
             console.debug("error in fetching all user monitors : ", error);
+        }
+    }
+
+    async getMonitorById(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user!.id;
+            const monitorId = req.body;
+
+            if (!userId) {
+                res.status(401).json({
+                    success: false,
+                    message: "user not authenticated"
+                })
+            }
+
+            if (!monitorId) {
+                res.status(400).json({
+                    success: false,
+                    message: "Inalid monitor id"
+                })
+            }
+
+            const result = await monitorModel.getMonitorById(monitorId, userId);
+            console.debug("✅ fetched monitor id in controller : ", result);
+            res.json({
+                success: true,
+                data: {
+                    result
+                },
+                message: "successfully fetched the monitor"
+            })
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: "internal server error"
+            })
+            console.debug("error in get monitor by id controller : ", error);
         }
     }
 }
