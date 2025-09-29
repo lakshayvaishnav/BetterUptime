@@ -6,18 +6,18 @@ import type { Response } from "express";
 class MonitorController {
     async createUserMonitor(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
-            // fix the bug instead of params use req.user for the requests.
-            const  id  = req.user!.id;
-            let { userId, url }: CreateMonitor = req.body;
+            // fix the bug :  instead of params use req.user for the requests.
+            const id = req.user!.id;
 
             if (!id) {
-                res.status(400).json({
+                res.status(401).json({
                     success: false,
-                    message: "invalid params id does not exists"
+                    message: "user not authenticated"
                 })
                 return;
             }
 
+            let { userId, url }: CreateMonitor = req.body;
             userId = id;
 
             if (!url) {
@@ -48,20 +48,27 @@ class MonitorController {
 
     async deleteUserMonitor(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
-            const { id } = req.params;
-            let { monitorId, userId } = req.body;
+            const id = req.user!.id;
 
             if (!id) {
-                res.status(400).json({
+                res.status(401).json({
                     success: false,
-                    message: "invalid params id does not exists"
+                    message: "user not authenticated"
                 })
                 return;
             }
 
-            userId = id;
+            let { monitorId } = req.params;
 
-            const monitor = await monitorModel.deleteMonitor(monitorId, userId);
+            if (!monitorId) {
+                res.status(400).json({
+                    success: false,
+                    message: "invalid monitor id"
+                })
+                return;
+            }
+
+            const monitor = await monitorModel.deleteMonitor(monitorId, id);
 
             console.debug("✅ monitor deleted successfully in controller : ", monitor);
 
@@ -81,15 +88,13 @@ class MonitorController {
 
     async deleteAllUserMonitor(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
-            const { id } = req.params;
+            const id = req.user!.id;
             if (!id) {
-                if (!id) {
-                    res.status(400).json({
-                        success: false,
-                        message: "invalid params id does not exists"
-                    })
-                    return;
-                }
+                res.status(401).json({
+                    success: false,
+                    message: "user not authenticated"
+                })
+                return;
             }
 
             const result = await monitorModel.deleteAllUserMonitors(id);
@@ -104,14 +109,14 @@ class MonitorController {
         }
     }
 
-    async getAllUserMonitors(req : AuthenticatedRequest, res : Response) : Promise<void> {
-        try {
-            const {} = req.user?.id;
+    // async getAllUserMonitors(req: AuthenticatedRequest, res: Response): Promise<void> {
+    //     try {
+    //         const { } = req.user?.id;
 
-        } catch (error) {
-            
-        }
-    }
+    //     } catch (error) {
+
+    //     }
+    // }
 }
 
 export default new MonitorController();
