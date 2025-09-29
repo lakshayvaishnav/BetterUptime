@@ -16,8 +16,7 @@ class MonitorController {
                 return;
             }
 
-            let { userId, url }: CreateMonitor = req.body;
-            userId = id;
+            let { url }: CreateMonitor = req.body;
 
             if (!url) {
                 res.status(400).json({
