@@ -102,21 +102,50 @@ class MonitorController {
 
             res.json({
                 success: true,
-                messaeg: "all monitors deleted successfully"
+                data: {
+                    result
+                },
+                message: "all monitors deleted successfully"
             })
         } catch (error) {
-
+            res.status(500).json({
+                success: false,
+                message : "internal server error"
+            })
+            console.debug("erro in delete all user monitor : ", error);
         }
     }
 
-    // async getAllUserMonitors(req: AuthenticatedRequest, res: Response): Promise<void> {
-    //     try {
-    //         const { } = req.user?.id;
+    async getAllUserMonitors(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const id = req.user?.id;
+            if (!id) {
+                res.status(401).json({
+                    success: false,
+                    message: "user not authenticated"
+                })
+                return;
+            }
+            const result = await monitorModel.getAllUserMonitors(id);
 
-    //     } catch (error) {
+            console.debug("✅ fetched all monitors controller : ", result);
 
-    //     }
-    // }
+            res.json({
+                success: true,
+                data: {
+                    result
+                },
+                message : "Fetched all monitors"
+            })
+
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message : "internal server error"
+            })
+            console.debug("error in fetching all user monitors : ", error);
+        }
+    }
 }
 
 export default new MonitorController();

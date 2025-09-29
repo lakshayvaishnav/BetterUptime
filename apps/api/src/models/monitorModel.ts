@@ -1,5 +1,6 @@
 import { prismaclient, type Monitor } from "db/client";
 import type { CreateMonitor } from "../types";
+import { compareSync } from "bcryptjs";
 
 class MonitorModel {
     async getUserMonitors(userId: string): Promise<Monitor[] | null> {
@@ -160,6 +161,38 @@ class MonitorModel {
         } catch (error) {
             console.error("Error deleting all user monitors", error);
             throw new Error("Failed to delete user monitors");
+        }
+    }
+
+    async getAllUserMonitors(userId: string): Promise<Monitor[] | null> {
+        try {
+            const res = await prismaclient.monitor.findMany({
+                where: {
+                    userId: userId
+                },
+
+                include: {
+                    results: {
+                        orderBy: {
+                            checkedAt: "desc"
+                        },
+                        take: 10 // last 50 results
+                    },
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
+                    }
+                }
+            })
+
+            console.debug("✅ all monitors fetched : ", res);
+            return res;
+        } catch (error) {
+            console.error("Error fetching all the monitors", error);
+            throw new Error("Failed to fetch monitors");
         }
     }
 
