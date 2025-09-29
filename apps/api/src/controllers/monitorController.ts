@@ -149,13 +149,14 @@ class MonitorController {
     async getMonitorById(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
             const userId = req.user!.id;
-            const monitorId = req.body;
+            const { monitorId } = req.params;
 
             if (!userId) {
                 res.status(401).json({
                     success: false,
                     message: "user not authenticated"
                 })
+                return;
             }
 
             if (!monitorId) {
@@ -163,6 +164,7 @@ class MonitorController {
                     success: false,
                     message: "Inalid monitor id"
                 })
+                return;
             }
 
             const result = await monitorModel.getMonitorById(monitorId, userId);

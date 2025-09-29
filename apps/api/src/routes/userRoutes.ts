@@ -8,4 +8,5 @@ const router = Router();
 // to check all the monitors of the user. # protected
 router.get("/monitors",authenticate,userController.getUserMonitor);
 
+
 export default router;
