@@ -42,6 +42,14 @@ class ResultModel {
                 },
                 orderBy: {
                     checkedAt: "desc"
+                },
+                include: {
+                    monitor: {
+                        select: {
+                            id: true,
+                            url: true
+                        }
+                    }
                 }
             })
 

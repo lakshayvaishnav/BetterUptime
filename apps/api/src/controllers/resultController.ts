@@ -132,7 +132,6 @@ class ResultController {
                 });
                 return;
             }
-
             if (days < 1) {
                 res.status(400).json({
                     success: false,
