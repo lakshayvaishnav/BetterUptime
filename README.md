@@ -2,9 +2,12 @@
 
 A high-performance, scalable uptime monitoring system built with TypeScript, featuring a microservices architecture powered by Redis Streams and PostgreSQL.
 
+![Architecture](./betteruptime_architecture.png)
+
 ## 🚀 Features
 
 ### Core Monitoring
+
 - **Real-time Uptime Monitoring**: Continuous website availability checks
 - **Multi-region Support**: Monitor from USA and India regions
 - **Response Time Tracking**: Detailed performance metrics
@@ -12,12 +15,14 @@ A high-performance, scalable uptime monitoring system built with TypeScript, fea
 - **Bulk Operations**: Efficient processing of multiple monitors
 
 ### Authentication & Security
+
 - **JWT-based Authentication**: Secure user sessions
 - **User Registration & Login**: Complete auth flow
 - **Protected Routes**: Middleware-based authorization
 - **Password Hashing**: Secure credential storage
 
 ### API Features
+
 - **RESTful API**: Clean, well-structured endpoints
 - **CRUD Operations**: Full monitor lifecycle management
 - **Result Queries**: Fetch uptime data with filtering
@@ -25,6 +30,7 @@ A high-performance, scalable uptime monitoring system built with TypeScript, fea
 - **Error Handling**: Comprehensive error management
 
 ### Architecture & Scalability
+
 - **Microservices Design**: Separated concerns for better maintainability
 - **Redis Streams**: Reliable message queuing and processing
 - **Producer-Worker Pattern**: Scalable distributed processing
@@ -33,24 +39,28 @@ A high-performance, scalable uptime monitoring system built with TypeScript, fea
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   API Service   │    │ Producer Service│    │ Worker Service  │
-│                 │    │                 │    │                 │
-│ • Express.js    │    │ • Batch URLs    │    │ • Process Checks│
-│ • JWT Auth      │    │ • Redis Streams │    │ • Bulk Upload   │
-│ • REST Endpoints│    │ • 3min Intervals│    │ • Auto-reclaim  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │   Data Layer    │
-                    │                 │
-                    │ • PostgreSQL    │
-                    │ • Redis Streams │
-                    │ • Prisma ORM    │
-                    └─────────────────┘
+```mermaid
+graph TD
+    User([User]) -->|HTTP Request| API[API Service]
+    API -->|Save Monitor| DB[(PostgreSQL)]
+    API -->|Push to Stream| Redis[(Redis Streams)]
+
+    Producer[Producer Service] -.->|Poll Monitors| DB
+    Producer -.->|Batch Push| Redis
+
+    subgraph Workers [Worker Cluster]
+        Worker1[Worker 1]
+        Worker2[Worker 2]
+        WorkerN[Worker N]
+    end
+
+    Redis -->|Consume| Workers
+    Workers -->|Perform Checks| Web([Internet])
+    Workers -->|Store Results| DB
+    Workers -->|Acknowledge| Redis
+
+    Reclaimer[PEL Reclaimer] -.->|Monitor Stalled| Redis
+    Reclaimer -.->|Reclaim & Process| Redis
 ```
 
 ## 📁 Project Structure
@@ -105,23 +115,27 @@ better-uptime/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd better-uptime
    ```
 
 2. **Install dependencies**
+
    ```bash
    bun install
    ```
 
 3. **Start the infrastructure**
+
    ```bash
    cd docker
    docker-compose up -d
    ```
 
 4. **Set up the database**
+
    ```bash
    cd packages/db
    bun run prisma migrate dev
@@ -129,6 +143,7 @@ better-uptime/
    ```
 
 5. **Start the services**
+
    ```bash
    # Terminal 1 - API Service
    bun run api
@@ -143,12 +158,14 @@ better-uptime/
 ## 📚 API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/signup` - Register new user
 - `POST /api/auth/login` - Login user
 - `POST /api/auth/logout` - Logout user
 - `GET /api/auth/me` - Get user profile
 
 ### Monitors
+
 - `POST /api/monitor` - Create new monitor
 - `GET /api/monitor` - List user monitors
 - `GET /api/monitor/:id` - Get monitor details
@@ -156,6 +173,7 @@ better-uptime/
 - `DELETE /api/monitor/:id` - Delete monitor
 
 ### Results
+
 - `GET /api/results/:monitorId/checks` - Get monitor results
 - `GET /api/results/:monitorId/latest` - Get latest result
 - `DELETE /api/results/:monitorId/cleanup?days=90` - Clean old results
@@ -209,6 +227,7 @@ pm2 start ecosystem.config.js
 ## 📊 Database Schema
 
 ### Users Table
+
 - `id` (UUID, Primary Key)
 - `email` (String, Unique)
 - `name` (String)
@@ -217,6 +236,7 @@ pm2 start ecosystem.config.js
 - `updatedAt` (DateTime)
 
 ### Monitors Table
+
 - `id` (UUID, Primary Key)
 - `url` (String)
 - `userId` (UUID, Foreign Key)
@@ -224,6 +244,7 @@ pm2 start ecosystem.config.js
 - `updatedAt` (DateTime)
 
 ### CheckResults Table
+
 - `id` (UUID, Primary Key)
 - `monitorId` (UUID, Foreign Key)
 - `status` (Enum: Up/Down)
@@ -231,25 +252,19 @@ pm2 start ecosystem.config.js
 - `responseTimeMs` (Integer)
 - `checkedAt` (DateTime)
 
-## 🔄 How It Works
+## 🔄 In-Depth Workflow
 
-1. **Producer Service** fetches all active monitors from the database every 3 minutes
-2. **URLs are batched** and pushed to Redis Streams for processing
-3. **Worker Service** consumes messages from the stream and performs HTTP checks
-4. **Results are bulk-uploaded** to PostgreSQL for storage
-5. **API Service** provides REST endpoints for frontend consumption
-6. **Auto-recovery** handles failed messages through PEL reclaiming
-
-## 🚧 Frontend Status
-
-**⚠️ Frontend is currently in progress and not yet implemented.**
-
-The backend API is fully functional and ready for frontend integration. The planned frontend will include:
-
-- Dashboard with monitor overview
-- Real-time uptime status
-- Historical charts and analytics
-- Monitor configuration interface
-- Alert management system
-- User authentication UI
-
+1.  **User Action**: When a user adds a new website URL through the Frontend/API, the `API Service` validates the input and creates a new entry in the `PostgreSQL` database.
+2.  **Task Distribution**:
+    - **Direct Push**: The `API Service` immediately pushes the new monitor task to the `Redis Stream` (using the `BetterUptime:Websites` key) to ensure the first check happens instantly.
+    - **Periodic Sync**: The `Producer Service` runs every 3 minutes, fetching all active monitors from the database and pushing them in batches to the `Redis Stream`. This acts as a fallback and ensures continuous monitoring.
+3.  **Check Execution**:
+    - `Worker Services` are organized into `Consumer Groups` (e.g., by region like "india").
+    - Workers use `XREADGROUP` to pull unassigned tasks from the stream.
+    - For each task, the worker performs an HTTP GET request to the target URL and measures the response time.
+4.  **Result Persistence**:
+    - Workers collect results and perform a **Bulk Upload** to the `CheckResults` table in `PostgreSQL` using Prisma's `createMany`.
+    - This minimizes database load and improves scalability.
+5.  **Reliability & Self-Healing**:
+    - **Acknowledgement**: After a successful upload, workers send an `XACK` to Redis to mark the message as processed.
+    - **PEL Reclaiming**: A `Reclaim Loop` periodically checks the Pending Entry List (PEL). If a message has been stuck (delivered but not acknowledged) for more than 30 seconds (e.g., due to a worker crash), the reclaimer `XCLAIM`s it and re-processes it.
