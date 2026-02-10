@@ -6,9 +6,10 @@ services:
     container_name: uptime_db
     restart: always
     ports:
-      - "5432:5432"
+      - "5432:5432" 
     environment:
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: uptime
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
 
